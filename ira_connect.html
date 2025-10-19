@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRA Connect Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .main-container {
+            max-width: 420px;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Custom scrollbar for webkit browsers */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        @media (min-width: 640px) {
+            .main-container {
+                max-width: 600px;
+                height: 95vh;
+                max-height: 844px;
+                border-radius: 1.5rem;
+                margin-top: 2.5vh;
+                margin-bottom: 2.5vh;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center">
+
+    <div id="app-container" class="main-container bg-white shadow-2xl relative overflow-hidden">
+
+        <!-- ===== Login Screen ===== -->
+        <div id="login-screen" class="screen flex flex-col items-center justify-center h-full p-8 bg-gradient-to-br from-blue-600 to-indigo-700">
+            <div class="text-center text-white mb-12">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-2 mx-auto mb-4"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 0 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                <h1 class="text-4xl font-bold">IRA Connect</h1>
+                <p class="text-indigo-200 mt-2">Connecting Rheumatologists Across India</p>
+            </div>
+            <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">Member Login</h2>
+                <div id="login-error" class="hidden bg-red-100 text-red-700 p-3 rounded-lg text-center mb-4 text-sm">Invalid credentials.</div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="text-sm font-medium text-gray-600">Username</label>
+                        <input type="text" id="username" value="admin" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="password" class="text-sm font-medium text-gray-600">Password</label>
+                        <input type="password" id="password" value="12345" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <button id="login-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg mt-8 hover:bg-blue-700 transition-colors shadow-md">Login</button>
+                <p class="text-xs text-gray-400 text-center mt-4">For demo: use admin / 12345</p>
+            </div>
+        </div>
+
+        <!-- Main App Content (hidden initially) -->
+        <main id="main-content" class="flex-1 overflow-y-auto pb-20 custom-scrollbar hidden">
+            
+            <!-- ===== Members Screen ===== -->
+            <div id="members-screen" class="screen hidden py-4">
+                <div class="sticky top-0 bg-white pt-2 pb-4 px-4 z-10 border-b">
+                     <h1 class="text-2xl font-bold text-gray-800">Members</h1>
+                     <div class="relative mt-4">
+                        <input type="text" id="member-search" placeholder="Search by name or location..." class="w-full pl-10 pr-4 py-2 border rounded-full bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                             <i data-lucide="search" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div id="members-list" class="mt-4 space-y-3 px-4">
+                    <!-- Member items will be injected here -->
+                </div>
+            </div>
+
+            <!-- ===== Chat Screen (List View) ===== -->
+            <div id="chat-screen" class="screen hidden">
+                <div class="p-4 border-b sticky top-0 bg-white z-10">
+                    <h1 class="text-2xl font-bold text-gray-800">Chats</h1>
+                </div>
+                <div id="chat-list" class="divide-y divide-gray-200">
+                    <!-- Chat list items will be injected here -->
+                </div>
+            </div>
+
+            <!-- ===== Updates Screen ===== -->
+            <div id="updates-screen" class="screen hidden p-4">
+                 <div class="sticky top-0 bg-white pt-2 pb-4 -mx-4 px-4 z-10 border-b">
+                    <h1 class="text-2xl font-bold text-gray-800">Updates</h1>
+                 </div>
+                <div id="updates-list" class="mt-4 space-y-6">
+                    <!-- Update items will be injected here -->
+                </div>
+            </div>
+            
+            <!-- ===== Leaderboard Screen ===== -->
+            <div id="leaderboard-screen" class="screen hidden py-4">
+                 <div class="sticky top-0 bg-white pt-2 pb-4 px-4 z-10 border-b">
+                     <h1 class="text-2xl font-bold text-gray-800">Leaderboard</h1>
+                 </div>
+                <div class="mt-4 space-y-2 px-4">
+                    <!-- Leaderboard items will be injected here -->
+                </div>
+            </div>
+
+            <!-- ===== Conference Screen ===== -->
+            <div id="conference-screen" class="screen hidden">
+                <div class="h-48 bg-gradient-to-r from-blue-500 to-indigo-600 p-4 flex flex-col justify-end text-white rounded-b-2xl">
+                    <h1 class="text-3xl font-bold">Annual Conference</h1>
+                    <p class="text-indigo-200">Schedule & Sessions</p>
+                </div>
+                <div class="p-4">
+                    <div id="conference-schedule" class="space-y-4">
+                        <!-- Conference schedule will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ===== Navigation Bar ===== -->
+        <nav id="nav-bar" class="w-full bg-white border-t-2 border-gray-200 flex justify-around p-2 absolute bottom-0 left-0 right-0" style="display: none;">
+            <!-- Nav items will be injected here -->
+        </nav>
+
+        <!-- ===== Chat Detail Screen (Subpage) ===== -->
+        <div id="chat-detail-screen" class="absolute inset-0 bg-white z-50 flex flex-col hidden">
+            <!-- Header -->
+            <div class="p-3 border-b flex items-center space-x-4 bg-gray-50 flex-shrink-0">
+                <button id="chat-back-btn" class="p-2 -ml-2 text-gray-600">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </button>
+                <img id="chat-detail-header-img" src="https://placehold.co/40x40/E2E8F0/4A5568?text=G" class="w-10 h-10 rounded-full" alt="Group Icon">
+                <div>
+                    <h2 id="chat-detail-header-title" class="font-semibold text-gray-800"></h2>
+                    <p id="chat-detail-header-members" class="text-xs text-gray-500"></p>
+                </div>
+            </div>
+            <!-- Messages -->
+            <div id="chat-detail-messages" class="flex-1 p-4 overflow-y-auto bg-gray-100 space-y-4 custom-scrollbar">
+                <!-- Messages will appear here -->
+            </div>
+            <!-- Input -->
+            <div class="p-2 border-t bg-white flex-shrink-0">
+                 <div class="relative">
+                    <input type="text" placeholder="Type a message..." class="w-full bg-gray-100 rounded-full py-2 pl-4 pr-12 focus:outline-none">
+                    <button class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 text-white rounded-full p-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                 </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- DATA ---
+        const DUMMY_DATA = {
+            members: [
+                { name: 'Dr. Priya Sharma', location: 'Delhi', img: 'https://i.pravatar.cc/150?img=1' },
+                { name: 'Dr. Arjun Reddy', location: 'Hyderabad', img: 'https://i.pravatar.cc/150?img=2' },
+                { name: 'Dr. Ananya Singh', location: 'Mumbai', img: 'https://i.pravatar.cc/150?img=3' },
+                { name: 'Dr. Rohan Gupta', location: 'Bangalore', img: 'https://i.pravatar.cc/150?img=4' },
+                { name: 'Dr. Sneha Verma', location: 'Kurnool', img: 'https://i.pravatar.cc/150?img=5' },
+                { name: 'Dr. Vikram Patel', location: 'Chennai', img: 'https://i.pravatar.cc/150?img=6' },
+                { name: 'Dr. Neha Desai', location: 'Pune', img: 'https://i.pravatar.cc/150?img=7' },
+                { name: 'Dr. Aditi Rao', location: 'Kolkata', img: 'https://i.pravatar.cc/150?img=8' },
+            ],
+            chatGroups: [
+                { id: 1, name: 'SIG - Vasculitis', members: 42, icon: 'microscope', lastMessage: 'Could you share the link please?', time: '10:35 AM' },
+                { id: 2, name: 'Case Discussions', members: 128, icon: 'message-square-plus', lastMessage: 'Did you check for dsDNA...?', time: '8:15 AM' },
+                { id: 3, name: 'Kurnool Rheumatologists', members: 12, icon: 'map-pin', lastMessage: 'Great to connect with everyone!', time: 'Yesterday' },
+                { id: 4, name: 'Visual Summaries', members: 78, icon: 'image', lastMessage: 'This is fantastic! So easy to...', time: '9:02 AM' }
+            ],
+            chats: {
+                1: [
+                    { sender: 'Dr. Sharma', text: 'Has anyone seen the latest ANCA guidelines?', time: '10:30 AM', self: false },
+                    { sender: 'You', text: 'Yes, I was just reading them. Some interesting changes.', time: '10:32 AM', self: true },
+                    { sender: 'Dr. Patel', text: 'Could you share the link please?', time: '10:35 AM', self: false },
+                ],
+                2: [
+                    { sender: 'Dr. Singh', text: 'Presenting a case: 45yo female with polyarthritis and rash...', time: 'Yesterday', self: false },
+                    { sender: 'Dr. Reddy', text: 'Looks like classic Lupus, but we need to rule out other mimics.', time: 'Yesterday', self: false },
+                    { sender: 'You', text: 'Did you check for dsDNA and complement levels?', time: '8:15 AM', self: true },
+                ],
+                3: [
+                   { sender: 'Dr. Verma', text: 'Great to connect with everyone in Kurnool!', time: 'Yesterday', self: false },
+                ],
+                4: [
+                   { sender: 'Dr. Gupta', text: 'Sharing a new infographic on JAK inhibitors.', time: '9:00 AM', self: false },
+                   { sender: 'You', text: 'This is fantastic! So easy to understand.', time: '9:02 AM', self: true },
+                ]
+            },
+            updates: [
+                { title: 'New Study on Baricitinib in RA Published', source: 'The Lancet', time: '2h ago', img: 'https://placehold.co/600x400/3B82F6/FFFFFF?text=Journal' },
+                { title: 'AI in Rheumatology: The Future of Diagnosis', source: 'Rheumatology News', time: '1d ago', img: 'https://placehold.co/600x400/10B981/FFFFFF?text=News' },
+                { title: 'Upcoming Webinar on Psoriatic Arthritis', source: 'IRA Events', time: '3d ago', img: 'https://placehold.co/600x400/8B5CF6/FFFFFF?text=Webinar' }
+            ],
+            leaderboard: [
+                { rank: 1, name: 'Dr. Rohan Gupta', points: 1250, img: 'https://i.pravatar.cc/150?img=4' },
+                { rank: 2, name: 'Dr. Ananya Singh', points: 1180, img: 'https://i.pravatar.cc/150?img=3' },
+                { rank: 3, name: 'Dr. Priya Sharma', points: 1120, img: 'https://i.pravatar.cc/150?img=1' },
+                { rank: 4, name: 'You', points: 980, img: 'https://i.pravatar.cc/150?img=10' },
+                { rank: 5, name: 'Dr. Vikram Patel', points: 950, img: 'https://i.pravatar.cc/150?img=6' },
+            ],
+            conference: [
+                 { day: 'Day 1', date: 'Fri, Nov 21',
+                    sessions: [
+                        { time: '09:00 - 10:00', title: 'Inauguration & Keynote', speaker: 'Dr. A. N. Malviya', hall: 'Hall A' },
+                        { time: '10:30 - 11:30', title: 'Advances in SLE Management', speaker: 'Dr. Rohini Handa', hall: 'Hall B' },
+                        { time: '11:30 - 12:30', title: 'The Spondyloarthropathies Spectrum', speaker: 'Dr. V. Krishnamurthy', hall: 'Hall A' },
+                        { time: '14:00 - 15:00', title: 'JAK Inhibitors: A Masterclass', speaker: 'Dr. P. D. Rath', hall: 'Hall C' }
+                    ]
+                },
+                { day: 'Day 2', date: 'Sat, Nov 22',
+                    sessions: [
+                        { time: '09:00 - 10:00', title: 'Pediatric Rheumatology Update', speaker: 'Dr. S. J. Gupta', hall: 'Hall B' },
+                        { time: '10:30 - 11:30', title: 'Imaging in Rheumatology', speaker: 'Dr. C. Balakrishnan', hall: 'Hall A' },
+                        { time: '11:30 - 12:30', title: 'Difficult to Treat RA', speaker: 'Dr. A. Chopra', hall: 'Hall C' }
+                    ]
+                }
+            ]
+        };
+
+        const navItems = [
+            { id: 'members', icon: 'users', label: 'Members' },
+            { id: 'chat', icon: 'message-circle', label: 'Chat' },
+            { id: 'updates', icon: 'rss', label: 'Updates' },
+            { id: 'leaderboard', icon: 'bar-chart-2', label: 'Leaders' },
+            { id: 'conference', icon: 'calendar', label: 'Conference' }
+        ];
+
+        // --- DOM Elements ---
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const navBar = document.getElementById('nav-bar');
+        const loginBtn = document.getElementById('login-btn');
+        const loginError = document.getElementById('login-error');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const memberSearchInput = document.getElementById('member-search');
+        const chatDetailScreen = document.getElementById('chat-detail-screen');
+        const chatListContainer = document.getElementById('chat-list');
+        const chatBackButton = document.getElementById('chat-back-btn');
+        
+        // --- App State ---
+        let currentScreen = 'login';
+        
+        // --- Functions ---
+        
+        const showScreen = (screenId) => {
+            document.querySelectorAll('#main-content .screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            const targetScreen = document.getElementById(`${screenId}-screen`);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if(item.dataset.screen === screenId) {
+                    item.classList.add('text-blue-600');
+                    item.classList.remove('text-gray-500');
+                } else {
+                    item.classList.add('text-gray-500');
+                    item.classList.remove('text-blue-600');
+                }
+            });
+            mainContent.scrollTop = 0; // Scroll to top on screen change
+            currentScreen = screenId;
+        };
+
+        const handleLogin = () => {
+            if (usernameInput.value === 'admin' && passwordInput.value === '12345') {
+                loginScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                navBar.style.display = 'flex';
+                showScreen('members');
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        };
+
+        // RENDER Functions
+        const renderMembers = (filter = '') => {
+            const list = document.getElementById('members-list');
+            const filteredMembers = DUMMY_DATA.members.filter(m => 
+                m.name.toLowerCase().includes(filter.toLowerCase()) || 
+                m.location.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filteredMembers.length === 0) {
+                 list.innerHTML = `<div class="text-center text-gray-500 py-8">No members found.</div>`;
+                 return;
+            }
+
+            list.innerHTML = filteredMembers.map(member => `
+                <div class="flex items-center p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition">
+                    <img src="${member.img}" alt="${member.name}" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                        <div class="font-semibold text-gray-800">${member.name}</div>
+                        <div class="text-sm text-gray-500">${member.location}</div>
+                    </div>
+                    <div class="ml-auto p-2 rounded-full bg-blue-100 text-blue-600 cursor-pointer">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        const renderChatList = () => {
+            chatListContainer.innerHTML = DUMMY_DATA.chatGroups.map(group => `
+                <div class="chat-group-item flex items-center p-4 space-x-4 hover:bg-gray-100 cursor-pointer" data-group-id="${group.id}">
+                    <div class="p-3 bg-gray-200 rounded-full">
+                       <i data-lucide="${group.icon}" class="w-6 h-6 text-gray-600"></i>
+                    </div>
+                    <div class="flex-1 overflow-hidden">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-md truncate">${group.name}</h3>
+                            <p class="text-xs text-gray-500">${group.time}</p>
+                        </div>
+                        <p class="text-sm text-gray-500 truncate">${group.lastMessage}</p>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+        
+        const renderChatDetail = (groupId) => {
+            const messages = DUMMY_DATA.chats[groupId] || [];
+            const groupInfo = DUMMY_DATA.chatGroups.find(g => g.id == groupId);
+            const messagesContainer = document.getElementById('chat-detail-messages');
+            
+            document.getElementById('chat-detail-header-title').textContent = groupInfo.name;
+            document.getElementById('chat-detail-header-members').textContent = `${groupInfo.members} members`;
+            
+            if (messages.length === 0) {
+                messagesContainer.innerHTML = `<div class="text-center text-gray-500 mt-8">No messages yet.</div>`;
+                return;
+            }
+            
+            messagesContainer.innerHTML = messages.map(msg => `
+                <div class="flex ${msg.self ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${msg.self ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none shadow-sm'}">
+                        ${!msg.self ? `<div class="font-bold text-xs text-indigo-500">${msg.sender}</div>` : ''}
+                        <p class="text-sm">${msg.text}</p>
+                        <div class="text-xs mt-1 ${msg.self ? 'text-blue-200' : 'text-gray-400'} text-right">${msg.time}</div>
+                    </div>
+                </div>
+            `).join('');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        const renderUpdates = () => {
+            const list = document.getElementById('updates-list');
+            list.innerHTML = DUMMY_DATA.updates.map(update => `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <img src="${update.img}" alt="${update.title}" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h2 class="text-lg font-semibold text-gray-800">${update.title}</h2>
+                        <p class="text-sm text-gray-500 mt-1">${update.source} &bull; ${update.time}</p>
+                        <a href="#" class="text-blue-600 font-semibold text-sm mt-3 inline-block">Read More &rarr;</a>
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        const renderLeaderboard = () => {
+            const list = document.getElementById('leaderboard-list');
+            const container = document.getElementById('leaderboard-screen').querySelector('.mt-4');
+            const medals = ['🥇', '🥈', '🥉'];
+            container.innerHTML = DUMMY_DATA.leaderboard.map((user, index) => `
+                 <div class="flex items-center p-3 rounded-xl ${user.name === 'You' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white shadow-sm'}">
+                    <div class="font-bold text-lg w-8 text-center">${medals[index] || user.rank}</div>
+                    <img src="${user.img}" alt="${user.name}" class="w-12 h-12 rounded-full mx-4">
+                    <div class="flex-1">
+                        <div class="font-semibold text-gray-800">${user.name}</div>
+                        <div class="text-sm text-gray-500">${user.points} points</div>
+                    </div>
+                 </div>
+            `).join('');
+        };
+
+        const renderConference = () => {
+            const container = document.getElementById('conference-schedule');
+            container.innerHTML = DUMMY_DATA.conference.map(day => `
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">${day.day} <span class="font-normal text-gray-500">- ${day.date}</span></h2>
+                    <div class="space-y-3">
+                        ${day.sessions.map(session => `
+                             <div class="flex items-start p-4 bg-white rounded-xl shadow-sm space-x-4">
+                                <div class="w-20 text-right">
+                                    <div class="font-semibold text-gray-800">${session.time.split(' - ')[0]}</div>
+                                    <div class="text-xs text-gray-500">${session.time.split(' - ')[1]}</div>
+                                </div>
+                                <div class="border-l-2 border-blue-500 pl-4 flex-1">
+                                    <h3 class="font-semibold text-gray-900">${session.title}</h3>
+                                    <p class="text-sm text-gray-600 mt-1">${session.speaker}</p>
+                                    <p class="text-xs text-gray-400 mt-1">${session.hall}</p>
+                                </div>
+                                <button class="bookmark-btn text-gray-400 hover:text-yellow-500 transition">
+                                    <i data-lucide="bookmark" class="w-6 h-6"></i>
+                                </button>
+                             </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        const renderNav = () => {
+            navBar.innerHTML = navItems.map(item => `
+                <button class="nav-item flex-1 flex flex-col items-center justify-center p-1 text-gray-500 transition-colors" data-screen="${item.id}">
+                    <i data-lucide="${item.icon}" class="w-6 h-6 mb-1"></i>
+                    <span class="text-xs font-medium">${item.label}</span>
+                </button>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        // --- Event Listeners ---
+        loginBtn.addEventListener('click', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        navBar.addEventListener('click', (e) => {
+            const navItem = e.target.closest('.nav-item');
+            if (navItem) {
+                showScreen(navItem.dataset.screen);
+            }
+        });
+
+        memberSearchInput.addEventListener('input', (e) => {
+            renderMembers(e.target.value);
+        });
+
+        chatListContainer.addEventListener('click', (e) => {
+            const groupItem = e.target.closest('.chat-group-item');
+            if (groupItem) {
+                const groupId = groupItem.dataset.groupId;
+                renderChatDetail(groupId);
+                mainContent.classList.add('hidden');
+                navBar.classList.add('hidden');
+                chatDetailScreen.classList.remove('hidden');
+                chatDetailScreen.classList.add('flex');
+            }
+        });
+
+        chatBackButton.addEventListener('click', () => {
+            chatDetailScreen.classList.add('hidden');
+            chatDetailScreen.classList.remove('flex');
+            mainContent.classList.remove('hidden');
+            navBar.classList.remove('hidden');
+        });
+        
+        document.getElementById('conference-schedule').addEventListener('click', e => {
+            const bookmarkBtn = e.target.closest('.bookmark-btn');
+            if (bookmarkBtn) {
+                bookmarkBtn.classList.toggle('text-yellow-400');
+                bookmarkBtn.classList.toggle('text-gray-400');
+                const icon = bookmarkBtn.querySelector('i');
+                // Optional: fill the icon
+                if (bookmarkBtn.classList.contains('text-yellow-400')) {
+                    icon.innerHTML = '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>';
+                } else {
+                    lucide.createIcons(); // Revert to outline
+                }
+            }
+        });
+
+        // --- Initial Load ---
+        const init = () => {
+            renderNav();
+            renderMembers();
+            renderChatList();
+            renderUpdates();
+            renderLeaderboard();
+            renderConference();
+            lucide.createIcons();
+        };
+
+        init();
+    });
+</script>
+</body>
+</html>
+
